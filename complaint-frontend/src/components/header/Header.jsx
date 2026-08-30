@@ -1,8 +1,9 @@
-import { NavLink } from "react-router-dom";
+import { NavLink , useNavigate } from "react-router-dom";
 import "./Header.css"
-import { useAuth } from "../../context/userContext.jsx";
+import { useAuth } from "../../context/userAuth.jsx";
 function Header() {
     const {user , tokenValid , logout} = useAuth();
+    const navigate = useNavigate();
     return (
         <>
             <div className="header">
@@ -11,7 +12,7 @@ function Header() {
                     {tokenValid && <h3>{user.username}</h3>}
                     {
                         tokenValid ? <div>
-                            <button>Create a complaint</button>
+                            <button onClick={()=>navigate("/create-complaint")}>Create a complaint</button>
                             <button onClick={logout}>logout</button>
                         </div> : <button><NavLink to="/signup">sign up</NavLink></button>
                     }

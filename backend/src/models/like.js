@@ -8,7 +8,7 @@ const likeSchema = new mongoose.Schema({
     },
     complaintId:{
         type:mongoose.Schema.ObjectId,
-        ref:"complaint",
+        ref:"Complaint",
         required:true
     }
 })

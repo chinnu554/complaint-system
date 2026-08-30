@@ -9,7 +9,7 @@ const createComplaint = async (req, res) => {
     try {
         const file = req.file;
         const { title, description, userId } = req.body;
-
+        console.log(title,description,userId);
         if (!title || !description || !userId) {
             return res.status(400).json({ message: "Title, description, and userId are required" });
         }
@@ -26,13 +26,29 @@ const createComplaint = async (req, res) => {
         res.status(201).json({ message: "Complaint created successfully" });
     } catch (error) {
         res.status(400).json({ message: error.message });
+        console.log(error);
     }
 };
 
 const getAllComplaints = async (req, res) => {
     try {
         const complaints = await Complaint.find().populate("userId", "username email");
-        res.status(200).json(complaints);
+        
+        const complaintsWithLikes = [];
+
+        for (const complaint of complaints) {
+
+            const liked = await Like.findOne({
+                complaintId: complaint._id,
+                userId: req.user.userId
+            });
+            complaintsWithLikes.push({
+                ...complaint.toObject(),
+                likedByUser: liked ? true : false
+            });
+        
+        }
+        res.status(200).json(complaintsWithLikes);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -69,27 +85,12 @@ const deleteComplaint = async(req,res)=>{
     }
 }
 
-const likeComplaint = async(req,res)=>{
-    try{
-        const {id} = req.params;
-        const complaint = await Complaint.findById(id);
-        if(!complaint){
-            return res.status(404).json({message:"Complaint not found"});
-        }   
-        await Complaint.findByIdAndUpdate(id,{$inc:{likes:1}});
-        res.status(200).json({message:"Complaint liked successfully"});
-    }
-    catch(err){
-        console.log(err);
-        res.status(400).json({message:err.message});
-    }
-}
 
 const toggleLike = async(req,res) =>{
     try{
-        const complaintId = req.params;
+        const {id : complaintId} = req.params;
         const userId = req.user.userId;
-        const existingLike = await Like.find({userId:userId,complaintId:complaintId});
+        const existingLike = await Like.findOne({userId:userId,complaintId:complaintId});
         if(existingLike){
             await Like.deleteOne({_id : existingLike._id});
 
@@ -99,7 +100,7 @@ const toggleLike = async(req,res) =>{
                 message:"like removed"
             });
         }
-        await Like.create({userId:userId,complaintId:complaintId});
+        await Like.create({userId:userId,complaintId:complaintId,isLiked:true});
 
         await Complaint.findOneAndUpdate({_id:complaintId},{$inc:{likes:1}});
 
@@ -111,22 +112,6 @@ const toggleLike = async(req,res) =>{
     catch(err){
         console.log(err);
         return res.json({message:"Error occured while liking"})    }
-}
-
-const dislikeComplaint = async(req,res)=>{
-    try{
-        const {id} = req.params;
-        const complaint = await Complaint.findById(id);
-        if(!complaint){
-            return res.status(404).json({message:"Complaint not found"});
-        }   
-        await Complaint.findByIdAndUpdate(id,{$inc:{dislikes:1}});
-        res.status(200).json({message:"Complaint disliked successfully"});
-    }
-    catch(err){
-        console.log(err);
-        res.status(400).json({message:err.message});
-    }
 }
 
 const addComment = async(req,res)=>{

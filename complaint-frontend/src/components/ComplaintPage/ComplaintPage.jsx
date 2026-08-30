@@ -1,11 +1,10 @@
-import { useAuth } from "../../context/userContext.jsx";
+import { useAuth } from "../../context/userAuth.jsx";
 import { useEffect, useState } from "react";
-
+import ComplaintCard from "../complaintCard/ComplaintCard.jsx";
 function ComplaintPage(){
 
-    const {getComplaints , likeComplaint , dislikeComplaint} = useAuth();
+    const {getComplaints} = useAuth();
     const [complaints,setComplaints] = useState([]);
-    const [likes,setLikes] = useState(0);
 
     useEffect(()=>{
         const fetchComplaints = async() =>{
@@ -20,22 +19,7 @@ function ComplaintPage(){
         <div>
             {
                 complaints.map((complaint)=>(
-                    <div key={complaint._id}>
-                        <hr />
-                        <h3>{complaint.userId?.username}</h3>
-                        <h2>{complaint.title}</h2>
-                        <p>{complaint.description}</p>
-                        {complaint.evidenceImage && (
-                            <img
-                                src={complaint.evidenceImage}
-                                alt="Complaint evidence"
-                                width={700}
-                                height={450}
-                            />
-                        )}
-                        <p>{complaint.likes}</p>
-                        <button onClick={()=>likeComplaint(complaint._id)}>like</button>
-                    </div>
+                    <ComplaintCard key={complaint._id} complaint={complaint}/>
                 ))
             }
         </div>

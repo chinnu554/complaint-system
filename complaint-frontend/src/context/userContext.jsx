@@ -2,7 +2,7 @@ import { createContext , useContext , useState , useEffect } from "react";
 import { API_BASE_URL } from "../api.js";
 import { Children } from "react";
 
-const UserContext = createContext();
+export const UserContext = createContext();
 
 export const UserProvider = ({children}) =>{
     const [user,setUser] = useState(null);
@@ -80,13 +80,12 @@ export const UserProvider = ({children}) =>{
 
  const createComplaint = async(complaint) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/complaints`, {
+        const response = await fetch(`${API_BASE_URL}/complaints/create`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify(complaint) 
+            body:complaint, 
         });
         const data = await response.json();
         return data;
@@ -135,6 +134,7 @@ export const UserProvider = ({children}) =>{
                 "Authorization": `Bearer ${token}`
             }
         })
+       const data = await likeResult.json();
     }
     catch(err){
         console.log(err);
@@ -183,7 +183,7 @@ export const UserProvider = ({children}) =>{
 
 
     return(
-        <UserContext.Provider value={{user,tokenValid,loginUser,registerUser , logout , createComplaint , deleteComplaint , getComplaints , getComplaintById , likeComplaint , dislikeComplaint}}>
+        <UserContext.Provider value={{user,tokenValid,loginUser,registerUser , logout , createComplaint , deleteComplaint , getComplaints , getComplaintById , toggleLike}}>
             {children}
         </UserContext.Provider>
     );

@@ -9,7 +9,7 @@ router.post("/create", upload.single("evidenceImage"), createComplaint);
 router.get("/all",getAllComplaints);
 router.get("/:id",getComplaintsByUserId);
 router.delete("/:id",deleteComplaint);
-router.post(":id/like",toggleLike);
+router.post("/:id/like",toggleLike);
 router.post("/:id/comments",addComment);
 
 export default router;
