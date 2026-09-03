@@ -9,8 +9,11 @@ function ComplaintPage(){
     useEffect(()=>{
         const fetchComplaints = async() =>{
             const data = await getComplaints();
+            console.log(data);
+            if(data.length == 0){
+               return alert("No complaints found");
+            }
             setComplaints(data);
-            setLikes(data.likes);
         }
         fetchComplaints();
     },[getComplaints])

@@ -11,10 +11,11 @@ function AuthPage() {
     const navigate = useNavigate();
     const {loginUser , registerUser } = useAuth();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
-        const data = isLogin ? loginUser(email,password) : registerUser(username,email,password);
-        if(data){
+        const data = await(isLogin ? loginUser(email,password) : registerUser(username,email,password));
+        if(data.success){
+            alert(data.message);
             navigate("/");
         }
     }

@@ -9,7 +9,6 @@ export const UserProvider = ({children}) =>{
     const [tokenValid , setTokenValid] = useState(false);
     const [userAction,setUserAction] = useState(false);
     const [token,setToken] = useState(()=> localStorage.getItem("token"));
-    console.log(user);
 
 
     const registerUser = async(username, email, password) => {
@@ -168,7 +167,6 @@ export const UserProvider = ({children}) =>{
             }
             const data = await response.json();
             setUser(data.user);
-            console.log(data.user);
             setTokenValid(true);
             return ;
         }

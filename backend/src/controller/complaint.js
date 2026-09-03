@@ -11,7 +11,7 @@ const createComplaint = async (req, res) => {
         const { title, description, userId } = req.body;
         console.log(title,description,userId);
         if (!title || !description || !userId) {
-            return res.status(400).json({ message: "Title, description, and userId are required" });
+            return res.status(400).json({ message: "Title, description, and userId are required", success: false });
         }
 
         let imageUrl = "";
@@ -20,12 +20,11 @@ const createComplaint = async (req, res) => {
             const result = await uploadComplaintImage(dataUri);
             imageUrl = result.secure_url;
         }
-        console.log(imageUrl);
 
         await Complaint.create({ title, description, userId, evidenceImage: imageUrl });
-        res.status(201).json({ message: "Complaint created successfully" });
+        res.status(201).json({ message: "Complaint created successfully", success: true });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: error.message, success: false });
         console.log(error);
     }
 };
@@ -50,7 +49,7 @@ const getAllComplaints = async (req, res) => {
         }
         res.status(200).json(complaintsWithLikes);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: error.message, success: false });
     }
 };
 
@@ -59,13 +58,13 @@ const getComplaintsByUserId = async (req,res) =>{
         const {id} = req.params;
         const complaints = await Complaint.find({userId:id}).populate("userId").populate("comments");
         if(!complaints){
-            return res.status(404).json({nessage:"No complaints found"});
+            return res.status(404).json({message:"No complaints found", success: false});
         }
         res.status(200).json(complaints);
     }
     catch(err){
         console.log(err);
-        res.status(400).json({message:err.message});
+        res.status(400).json({message:err.message, success: false});
     }
 }
 
@@ -74,14 +73,14 @@ const deleteComplaint = async(req,res)=>{
         const {id} = req.params;
         const complaint = await Complaint.findById(id);
         if(!complaint){
-            return res.status(404).json({message:"Complaint not found"});
+            return res.status(404).json({message:"Complaint not found", success: false});
         }   
         await Complaint.findByIdAndDelete(id);
-        res.status(200).json({message:"Complaint deleted successfully"});
+        res.status(200).json({message:"Complaint deleted successfully", success: true});
     }
     catch(err){
         console.log(err);
-        res.status(400).json({message:err.message});
+        res.status(400).json({message:err.message, success: false});
     }
 }
 
@@ -97,7 +96,8 @@ const toggleLike = async(req,res) =>{
             await Complaint.findOneAndUpdate({_id:complaintId},{$inc :{likes : -1}})
             console.log("disliked");
             return res.json({
-                message:"like removed"
+                message:"like removed",
+                success: true
             });
         }
         await Like.create({userId:userId,complaintId:complaintId,isLiked:true});
@@ -106,12 +106,12 @@ const toggleLike = async(req,res) =>{
 
         console.log("liked");
 
-        return res.json({message:"like added"});
+        return res.json({message:"like added", success: true});
 
     }
     catch(err){
         console.log(err);
-        return res.json({message:"Error occured while liking"})    }
+        return res.json({message:"Error occured while liking", success: false})    }
 }
 
 const addComment = async(req,res)=>{
@@ -120,14 +120,14 @@ const addComment = async(req,res)=>{
         const {userId,comment} = req.body;
         const complaint = await Complaint.findById(id);
         if(!complaint){
-            return res.status(404).json({message:"Complaint not found"});
+            return res.status(404).json({message:"Complaint not found", success: false});
         }
         const newComment = await Comment.create({complaintId:id,userId,comment});
-        res.status(201).json({message:"Comment added successfully",comment:newComment});
+        res.status(201).json({message:"Comment added successfully",comment:newComment, success: true});
     }
     catch(err){
         console.log(err);
-        res.status(400).json({message:err.message});
+        res.status(400).json({message:err.message, success: false});
     }
 }
 
