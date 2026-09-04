@@ -6,7 +6,10 @@ function ComplaintCard({ complaint }){
     const [liked,setLiked] = useState(complaint.likedByUser);
 
     async function makeLike(){
-        toggleLike(complaint._id);
+        const result = await toggleLike(complaint._id);
+        if (!result?.success) {
+            return;
+        }
         if(liked){
             setLiked(!liked);
             setLikes((prev)=>prev-1);
@@ -17,9 +20,7 @@ function ComplaintCard({ complaint }){
         }
     }  
             return(
-                    <div>
-                        <br />
-                        <br />
+                    <article className="complaint-card">
                         <h3>{complaint.userId?.username}</h3>
                         <h2>{complaint.title}</h2>
                         <p>{complaint.description}</p>
@@ -27,17 +28,16 @@ function ComplaintCard({ complaint }){
                             <img
                                 src={complaint.evidenceImage}
                                 alt="Complaint evidence"
-                                width={700}
-                                height={450}
+                                className="complaint-image"
                             />
                         )}
-                       <div style={{display:"flex",flexDirection:"row",gap:"10px",justifyContent:"flex-start",alignItems:"center",width:"200px",margin:"10px"}}>
+                       <div className="card-actions">
                             <p>{likes}</p>
                             <div>
                                 <button onClick={makeLike}>{liked ? "liked" : "like"}</button>
                             </div>
                        </div>
-                    </div>
+                    </article>
                 );
 }
 export default ComplaintCard

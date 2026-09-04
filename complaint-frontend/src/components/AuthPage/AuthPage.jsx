@@ -1,6 +1,6 @@
 import { NavLink , useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../../context/userContext.jsx";
+import { useAuth } from "../../context/userAuth.jsx";
 
 function AuthPage() {
     const [username, setUsername] = useState("");
@@ -14,14 +14,14 @@ function AuthPage() {
     const handleSubmit = async(e) => {
         e.preventDefault();
         const data = await(isLogin ? loginUser(email,password) : registerUser(username,email,password));
-        if(data.success){
+        if(data?.success){
             alert(data.message);
             navigate("/");
         }
     }
     return (
         <>
-            <div>
+            <main className="form-page">
                 <h1>{isLogin ? "Login" : "Register"}</h1>
                 <form>
                     {
@@ -32,9 +32,11 @@ function AuthPage() {
                     <button type="submit" onClick={handleSubmit}>{isLogin ? "Login" : "Register"}</button>
                 </form>
                 <p>{isLogin ? "Don't have an account?" : "Already have an account?"}</p>
-                <button onClick={() => setIsLogin(!isLogin)}>{isLogin ? "Register" : "Login"}</button>
-                <button><NavLink to="/">Back to homepage</NavLink></button>
-            </div>
+                <div className="form-actions">
+                    <button onClick={() => setIsLogin(!isLogin)}>{isLogin ? "Register" : "Login"}</button>
+                    <button><NavLink to="/">Back to homepage</NavLink></button>
+                </div>
+            </main>
         </>
     )
 };

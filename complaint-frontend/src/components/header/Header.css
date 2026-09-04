@@ -3,7 +3,11 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem max(1rem, calc((100% - 1100px) / 2));
+    border-bottom: 1px solid currentColor;
 }
+.header h1 { margin: 0; font-size: 1.35rem; }
 
 .header-buttons {
     display: flex;
@@ -12,3 +16,8 @@
     align-items: center;
     gap: 10px;
 }
+.user-name{
+    cursor: pointer;
+    margin: 0;
+}
+@media (max-width: 640px) { .header { flex-direction: column; align-items: flex-start; } }

@@ -6,6 +6,7 @@ import { verifyToken } from "../util/jwt.js";
 export const registerUser = async(req,res)=>{
     try{
         const {username,email,password} = req.body;
+        console.log(req.body);
         if(!username || !email || !password){
             return res.json({message:"Please fill all the fields",success:false});
         }

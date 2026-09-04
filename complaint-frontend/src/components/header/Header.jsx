@@ -9,7 +9,7 @@ function Header() {
             <div className="header">
                 <h1>College Complaint platform</h1>
                 <div className="header-buttons">
-                    {tokenValid && <h3>{user.username}</h3>}
+                    {tokenValid && <h3 className="user-name" onClick={()=>navigate("/userpage")}>{user.username}</h3>}
                     {
                         tokenValid ? <div>
                             <button onClick={()=>navigate("/create-complaint")}>Create a complaint</button>

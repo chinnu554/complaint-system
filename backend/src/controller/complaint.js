@@ -1,7 +1,5 @@
 import Complaint from "../models/complaint.js";
 import { Comment } from "../models/comment.js";
-import User from "../models/user.js";
-import upload from "../util/multer.js";
 import Like from "../models/like.js"
 import { uploadComplaintImage } from "../util/images.js";
 
@@ -9,7 +7,6 @@ const createComplaint = async (req, res) => {
     try {
         const file = req.file;
         const { title, description, userId } = req.body;
-        console.log(title,description,userId);
         if (!title || !description || !userId) {
             return res.status(400).json({ message: "Title, description, and userId are required", success: false });
         }
@@ -74,7 +71,10 @@ const deleteComplaint = async(req,res)=>{
         const complaint = await Complaint.findById(id);
         if(!complaint){
             return res.status(404).json({message:"Complaint not found", success: false});
-        }   
+        }
+        if (complaint.userId.toString() !== req.user.userId) {
+            return res.status(403).json({message:"Unauthorized to delete this complaint", success: false});
+        }
         await Complaint.findByIdAndDelete(id);
         res.status(200).json({message:"Complaint deleted successfully", success: true});
     }
@@ -94,7 +94,6 @@ const toggleLike = async(req,res) =>{
             await Like.deleteOne({_id : existingLike._id});
 
             await Complaint.findOneAndUpdate({_id:complaintId},{$inc :{likes : -1}})
-            console.log("disliked");
             return res.json({
                 message:"like removed",
                 success: true
@@ -103,8 +102,6 @@ const toggleLike = async(req,res) =>{
         await Like.create({userId:userId,complaintId:complaintId,isLiked:true});
 
         await Complaint.findOneAndUpdate({_id:complaintId},{$inc:{likes:1}});
-
-        console.log("liked");
 
         return res.json({message:"like added", success: true});
 

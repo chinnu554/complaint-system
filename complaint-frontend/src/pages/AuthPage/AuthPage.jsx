@@ -14,7 +14,7 @@ function AuthPage() {
     const handleSubmit = async(e) => {
         e.preventDefault();
         const data = await ( isLogin ? loginUser(email,password) : registerUser(username,email,password));
-        if(data.user){
+        if(data.success){
             navigate("/");
         }
     }

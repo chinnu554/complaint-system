@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../../context/userContext.jsx";
+import { useAuth } from "../../context/userAuth.jsx";
 import {useNavigate} from "react-router-dom"
 function CreateComplaint() {
     const navigate = useNavigate();
@@ -7,20 +7,32 @@ function CreateComplaint() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [evidence,setEvidence] = useState(null);
+    const [submitting,setSubmitting] = useState(false);
+    const [sucess,setSuccess] = useState(false);
     
 
     async function  submitComplaint(){
+        setSubmitting(true);
+        if(!title || !description || !user){
+            alert("Please fill all the fields");
+            setSubmitting(false);
+            return;
+        }
         const complaint = new FormData();
         complaint.append("title",title);
         complaint.append("description",description);
         complaint.append("userId",user.userId);
         complaint.append("evidenceImage",evidence);
         const result = await createComplaint(complaint);
+        if(result?.success){
+            setSuccess(true);         
+        }
+        setSubmitting(false);
     }
 
     return (
         <>
-            <div>
+            <main className="form-page">
                 <h1>Create Complaint</h1>
                 <div>
                     <label>Title : </label>
@@ -35,9 +47,14 @@ function CreateComplaint() {
                 <div>
                     <input type="file" onChange={(e)=>setEvidence(e.target.files[0])}/>
                 </div>
-                <button onClick={submitComplaint}>submit complaint</button>
-                <button onClick={()=>navigate("/")}>Back to Home</button>
-            </div>
+                <div className="form-actions">
+                    <button onClick={submitComplaint} disabled={submitting}>
+                        {submitting ? "Submitting..." : "submit complaint"}
+                    </button>
+                    <button onClick={()=>navigate("/")}>Back to Home</button>
+                </div>
+                {sucess && <p>Complaint submitted successfully</p>}
+            </main>
         </>
     );
 }

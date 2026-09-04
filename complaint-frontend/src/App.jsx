@@ -4,6 +4,7 @@ import AuthPage from "./components/AuthPage/AuthPage.jsx";
 import { Route, Routes } from "react-router-dom";
 import CreateComplaint from "./components/createComplaint/CreateComplaint.jsx";
 import Home from "./components/home/Home.jsx";
+import UserPage from "./pages/UserPage/UserPage.jsx";
 function App() {
   return (
     <>
@@ -12,6 +13,7 @@ function App() {
         <Route path="create-complaint" element={<CreateComplaint/>}/>
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<AuthPage />} />
+        <Route path="/userpage" element={<UserPage />} />
       </Routes>
       <Footer />
     </>

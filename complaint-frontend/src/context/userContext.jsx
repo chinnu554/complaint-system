@@ -1,15 +1,14 @@
-import { createContext , useContext , useState , useEffect } from "react";
+import { useState , useEffect, useCallback } from "react";
 import { API_BASE_URL } from "../api.js";
-import { Children } from "react";
+import { UserContext } from "./contextValue.jsx";
 
-export const UserContext = createContext();
 
 export const UserProvider = ({children}) =>{
     const [user,setUser] = useState(null);
     const [tokenValid , setTokenValid] = useState(false);
     const [userAction,setUserAction] = useState(false);
     const [token,setToken] = useState(()=> localStorage.getItem("token"));
-
+    console.log(user)
 
     const registerUser = async(username, email, password) => {
     try {
@@ -22,7 +21,7 @@ export const UserProvider = ({children}) =>{
         });
         const data = await response.json();
         alert(data.message);
-        setUserAction(!userAction);
+        setUserAction((action) => !action);
         return data;
     }   
     catch(err){
@@ -46,7 +45,7 @@ export const UserProvider = ({children}) =>{
             setToken(data.user.token);
         }
         alert(data.message);
-        setUserAction(!userAction);
+        setUserAction((action) => !action);
         return data;
     }
     catch(err){
@@ -58,7 +57,7 @@ export const UserProvider = ({children}) =>{
     const logout = () =>{
         localStorage.removeItem("token");
         setToken(null);
-        setUserAction(!userAction);
+        setUserAction((action) => !action);
         return ;
     }
 
@@ -110,9 +109,9 @@ export const UserProvider = ({children}) =>{
     }
 };
 
- const getComplaintById = async(complaintId) => {
+ const getComplaintsById = useCallback(async(userId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/complaints/${complaintId}`, {
+        const response = await fetch(`${API_BASE_URL}/complaints/${userId}`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -123,7 +122,7 @@ export const UserProvider = ({children}) =>{
     catch(err){
         console.log(err);
     }
-};
+}, [token]);
 
   const toggleLike = async(complaintId) =>{
     try{
@@ -134,6 +133,7 @@ export const UserProvider = ({children}) =>{
             }
         })
        const data = await likeResult.json();
+       return data;
     }
     catch(err){
         console.log(err);
@@ -141,7 +141,6 @@ export const UserProvider = ({children}) =>{
     }
   }
 
-     
 
     const getMe = async() =>{
         try{
@@ -151,6 +150,7 @@ export const UserProvider = ({children}) =>{
             if(!token){
                 setTokenValid(false);
                 setUser(null);
+                return;
             }
             const response = await fetch(`${API_BASE_URL}/auth/me`,{
                 method:"POST",
@@ -176,12 +176,12 @@ export const UserProvider = ({children}) =>{
         }
     }
     useEffect(()=>{
-        getMe();
+        queueMicrotask(getMe);
     },[userAction])
 
 
     return(
-        <UserContext.Provider value={{user,tokenValid,loginUser,registerUser , logout , createComplaint , deleteComplaint , getComplaints , getComplaintById , toggleLike}}>
+        <UserContext.Provider value={{user,tokenValid,loginUser,registerUser , logout , createComplaint , deleteComplaint , getComplaints , getComplaintsById , toggleLike}}>
             {children}
         </UserContext.Provider>
     );
@@ -189,6 +189,3 @@ export const UserProvider = ({children}) =>{
     
 }
 
-export const useAuth = () =>{
-        return useContext(UserContext);
-    }
