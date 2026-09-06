@@ -4,10 +4,17 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem max(1rem, calc((100% - 1100px) / 2));
-    border-bottom: 1px solid currentColor;
+    padding: 10px;
+    border-bottom: 1px solid gray;
+    background-color: white;
 }
-.header h1 { margin: 0; font-size: 1.35rem; }
+
+.header h1 {
+    background: linear-gradient(to right, #1fb6e0, #9f1fe0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
 
 .header-buttons {
     display: flex;
@@ -16,8 +23,15 @@
     align-items: center;
     gap: 10px;
 }
-.user-name{
+
+.user-name {
     cursor: pointer;
     margin: 0;
 }
-@media (max-width: 640px) { .header { flex-direction: column; align-items: flex-start; } }
+
+@media (max-width: 640px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

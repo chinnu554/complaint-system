@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../context/userAuth.jsx";
+import "./ComplaintCard.css";
 function ComplaintCard({ complaint }){
     const {toggleLike} = useAuth();
     const [likes,setLikes] = useState(complaint.likes);
@@ -25,11 +26,13 @@ function ComplaintCard({ complaint }){
                         <h2>{complaint.title}</h2>
                         <p>{complaint.description}</p>
                         {complaint.evidenceImage && (
-                            <img
+                            <div className="complaint-image-container">
+                                <img
                                 src={complaint.evidenceImage}
                                 alt="Complaint evidence"
                                 className="complaint-image"
                             />
+                            </div>
                         )}
                        <div className="card-actions">
                             <p>{likes}</p>

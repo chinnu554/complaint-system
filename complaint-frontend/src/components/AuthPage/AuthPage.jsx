@@ -1,27 +1,26 @@
-import { NavLink , useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../context/userAuth.jsx";
-
 function AuthPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [email,setEmail] = useState("");
+    const [email, setEmail] = useState("");
     const [isLogin, setIsLogin] = useState(false);
 
     const navigate = useNavigate();
-    const {loginUser , registerUser } = useAuth();
+    const { loginUser, registerUser } = useAuth();
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const data = await(isLogin ? loginUser(email,password) : registerUser(username,email,password));
-        if(data?.success){
+        const data = await (isLogin ? loginUser(email, password) : registerUser(username, email, password));
+        if (data?.success) {
             alert(data.message);
             navigate("/");
         }
     }
     return (
         <>
-            <main className="form-page">
+            <main className="form-page auth-page">
                 <h1>{isLogin ? "Login" : "Register"}</h1>
                 <form>
                     {

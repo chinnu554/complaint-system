@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import CreateComplaint from "./components/createComplaint/CreateComplaint.jsx";
 import Home from "./components/home/Home.jsx";
 import UserPage from "./pages/UserPage/UserPage.jsx";
+import "./App.css";
 function App() {
   return (
     <>

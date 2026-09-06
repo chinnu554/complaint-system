@@ -1,0 +1,23 @@
+.landing-page {
+    height: 80vh;
+    width: 80vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #1fb6e0;
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    object-fit: cover;
+}
+
+@media (max-width: 640px) {
+    .landing-page {
+        height: 50vh;
+        width: 50vw;
+    }
+
+    .landing-page h1 {
+        font-size: 2rem;
+    }
+}

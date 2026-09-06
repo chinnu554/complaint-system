@@ -1,11 +1,10 @@
-
+import "./Footer.css"
 function Footer() {
     return (
-        <>
-            <div className="footer">
-                <p>&copy; 2023 College Complaint Platform. All rights reserved.</p>
-            </div>
-        </>
+        <footer className="footer">
+            <p>&copy; {new Date().getFullYear()} College Complaint Platform. All rights reserved.</p>
+            <p>Built with ❤️ by Fullness Labs</p>
+        </footer>
     );
 }
 

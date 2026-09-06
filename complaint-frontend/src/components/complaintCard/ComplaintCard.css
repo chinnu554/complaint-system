@@ -1,0 +1,101 @@
+.complaint-card {
+    width: min(100%, 800px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1rem auto;
+    padding: 1.25rem;
+    border: 1px solid #d8dee9;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 3px 10px rgb(15 23 42 / 10%);
+}
+
+.complaint-card h3,
+.complaint-card h2,
+.complaint-card p {
+    margin: 0;
+}
+
+.complaint-card h3 {
+    color: #475569;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.complaint-card h2 {
+    color: #0f172a;
+    font-size: 1.25rem;
+}
+
+.complaint-card > p {
+    color: #334155;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.complaint-image-container {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #111827;
+}
+
+.complaint-image {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.card-actions p {
+    min-width: 1.5rem;
+    color: #475569;
+    font-weight: 600;
+    text-align: center;
+}
+
+.card-actions button {
+    padding: 0.45rem 0.9rem;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #2563eb;
+    color: #fff;
+    font: inherit;
+}
+
+.card-actions button:hover {
+    background-color: #1d4ed8;
+}
+
+.card-actions button:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+    .complaint-card {
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .complaint-image-container {
+        height: 260px;
+    }
+}

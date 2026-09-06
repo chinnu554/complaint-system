@@ -1,13 +1,16 @@
 import { useAuth } from "../../context/userAuth.jsx";
 import ComplaintPage from "../ComplaintPage/ComplaintPage.jsx";
+import "./Home.css"
 function Home() {
-    const {tokenValid} = useAuth();
+    const { tokenValid } = useAuth();
     return (
-        <main style={{minHeight:"100vh"}}>
+        <main className="home-page">
             {
-                tokenValid ? <ComplaintPage/> : <h1>Login to check the complaints</h1>
+                tokenValid ? <ComplaintPage /> : <div className="landing-page">
+                    <h1>Login to check the complaints</h1>
+                </div>
             }
-            
+
         </main>
     )
 }
