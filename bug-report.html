@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Complaint System - Bug Report</title>
+  <style>
+    @page { size: A4; margin: 18mm; }
+    :root { --ink: #172033; --muted: #596579; --line: #d9e0ea; --red: #b42318; --orange: #b54708; --blue: #175cd3; --soft: #f5f7fa; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; line-height: 1.48; }
+    h1 { margin: 0 0 6px; font-size: 27pt; letter-spacing: .2px; }
+    h2 { margin: 22px 0 8px; padding-bottom: 5px; border-bottom: 2px solid var(--ink); font-size: 15pt; }
+    h3 { margin: 0 0 5px; font-size: 12pt; }
+    p { margin: 5px 0 8px; }
+    .cover { padding: 8px 0 18px; border-bottom: 5px solid var(--blue); }
+    .subtitle { color: var(--muted); font-size: 12pt; }
+    .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 18px; margin-top: 15px; color: var(--muted); }
+    .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 15px 0; }
+    .metric { padding: 10px; background: var(--soft); border-left: 4px solid var(--blue); }
+    .metric strong { display: block; font-size: 18pt; color: var(--ink); }
+    .bug { page-break-inside: avoid; margin: 12px 0; padding: 12px 13px; border: 1px solid var(--line); border-radius: 5px; }
+    .bug.critical { border-left: 5px solid var(--red); }
+    .bug.high { border-left: 5px solid var(--orange); }
+    .bug.medium { border-left: 5px solid var(--blue); }
+    .tag { display: inline-block; margin-left: 7px; padding: 2px 7px; border-radius: 10px; color: white; font-size: 8pt; font-weight: bold; vertical-align: 1px; }
+    .critical .tag { background: var(--red); }
+    .high .tag { background: var(--orange); }
+    .medium .tag { background: var(--blue); }
+    code { padding: 1px 4px; background: #eef2f6; border-radius: 3px; font-family: Consolas, monospace; font-size: 9pt; }
+    .label { color: var(--muted); font-weight: bold; }
+    ol { margin-top: 6px; padding-left: 21px; }
+    li { margin: 4px 0; }
+    .footer { margin-top: 24px; padding-top: 8px; border-top: 1px solid var(--line); color: var(--muted); font-size: 8.5pt; }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <h1>Complaint System Bug Report</h1>
+    <div class="subtitle">Focused review of confirmed correctness, security, and maintainability issues</div>
+    <div class="meta">
+      <div><span class="label">Repository:</span> complaint-system</div>
+      <div><span class="label">Review date:</span> 6 September 2026</div>
+      <div><span class="label">Scope:</span> Express/MongoDB backend and React frontend</div>
+      <div><span class="label">Validation:</span> Frontend lint and production build passed</div>
+    </div>
+  </section>
+
+  <div class="summary">
+    <div class="metric"><strong>7</strong>confirmed issues</div>
+    <div class="metric"><strong>1</strong>critical security issue</div>
+    <div class="metric"><strong>5.5/10</strong>prototype rating</div>
+  </div>
+
+  <h2>Executive Summary</h2>
+  <p>The application has a clear full-stack structure and the frontend compiles cleanly. The main risk is authorization: authenticated users can provide identity fields that the server should derive from the verified JWT. The project also lacks backend tests, upload restrictions, robust validation, and atomic data handling for likes and comments.</p>
+
+  <h2>Confirmed Bugs</h2>
+
+  <article class="bug critical">
+    <h3>BUG-001: User identity is trusted from request data <span class="tag">CRITICAL</span></h3>
+    <p><span class="label">Affected files:</span> <code>backend/src/controller/complaint.js</code>, <code>complaint-frontend/src/components/createComplaint/CreateComplaint.jsx</code></p>
+    <p><span class="label">Problem:</span> Complaint creation reads <code>userId</code> from <code>req.body</code>, and comment creation also accepts <code>userId</code> from the client. The JWT has already been verified, but its identity is not used for these writes.</p>
+    <p><span class="label">Impact:</span> Any authenticated user can create a complaint or comment under another user's account by changing the submitted ID. This can also undermine ownership checks and profile data.</p>
+    <p><span class="label">Fix:</span> Use <code>req.user.userId</code> on the server. Remove <code>userId</code> from the client payload and request validation.</p>
+  </article>
+
+  <article class="bug high">
+    <h3>BUG-002: Comments are not linked back to complaints <span class="tag">HIGH</span></h3>
+    <p><span class="label">Affected file:</span> <code>backend/src/controller/complaint.js</code></p>
+    <p><span class="label">Problem:</span> A <code>Comment</code> document is created, but its ID is never added to the parent complaint's <code>comments</code> array.</p>
+    <p><span class="label">Impact:</span> Complaint queries using <code>populate("comments")</code> may return no comments even after successful comment creation.</p>
+    <p><span class="label">Fix:</span> Update the complaint after creation, or redesign the relationship to query comments by <code>complaintId</code> consistently.</p>
+  </article>
+
+  <article class="bug high">
+    <h3>BUG-003: File uploads have no size or type restrictions <span class="tag">HIGH</span></h3>
+    <p><span class="label">Affected file:</span> <code>backend/src/util/multer.js</code></p>
+    <p><span class="label">Problem:</span> Multer uses memory storage with no <code>limits</code> and no file filter. The server accepts arbitrary files and loads them fully into memory before forwarding them to Cloudinary.</p>
+    <p><span class="label">Impact:</span> Oversized requests can cause memory pressure or denial of service, and unexpected file types can be stored as evidence images.</p>
+    <p><span class="label">Fix:</span> Restrict MIME types to supported image formats, set a strict byte limit, and validate content where appropriate.</p>
+  </article>
+
+  <article class="bug medium">
+    <h3>BUG-004: JWT uses a predictable fallback secret <span class="tag">MEDIUM</span></h3>
+    <p><span class="label">Affected file:</span> <code>backend/src/util/jwt.js</code></p>
+    <p><span class="label">Problem:</span> Missing environment configuration silently falls back to <code>complaintbox-secret</code>.</p>
+    <p><span class="label">Impact:</span> A deployment mistake can make token forgery possible for anyone who knows the source code.</p>
+    <p><span class="label">Fix:</span> Fail fast during startup when <code>JWT_SECRET</code> is absent or too weak. Keep secrets outside the repository.</p>
+  </article>
+
+  <article class="bug medium">
+    <h3>BUG-005: Like toggling is not atomic or duplicate-safe <span class="tag">MEDIUM</span></h3>
+    <p><span class="label">Affected files:</span> <code>backend/src/controller/complaint.js</code>, <code>backend/src/models/like.js</code></p>
+    <p><span class="label">Problem:</span> The endpoint checks for an existing like, then creates or deletes it and separately increments or decrements the complaint counter. The schema has no compound unique index.</p>
+    <p><span class="label">Impact:</span> Concurrent requests can create duplicate likes or leave the counter inconsistent, including possible negative counts.</p>
+    <p><span class="label">Fix:</span> Add a unique compound index on <code>{ userId, complaintId }</code> and use an atomic update or transaction.</p>
+  </article>
+
+  <article class="bug medium">
+    <h3>BUG-006: Backend has weak validation and inconsistent HTTP errors <span class="tag">MEDIUM</span></h3>
+    <p><span class="label">Affected files:</span> backend controllers and routes</p>
+    <p><span class="label">Problem:</span> Several authentication failures return JSON with HTTP 200. There is no centralized error middleware, schema validation layer, rate limiting, or backend integration test suite.</p>
+    <p><span class="label">Impact:</span> Clients and monitoring systems cannot reliably distinguish successful requests from failures, while malformed or abusive input receives limited protection.</p>
+    <p><span class="label">Fix:</span> Return appropriate 4xx/5xx status codes, validate request bodies, centralize error handling, rate-limit authentication, and add API tests.</p>
+  </article>
+
+  <article class="bug medium">
+    <h3>BUG-007: Duplicate authentication page implementations <span class="tag">MEDIUM</span></h3>
+    <p><span class="label">Affected files:</span> <code>complaint-frontend/src/components/AuthPage/AuthPage.jsx</code>, <code>complaint-frontend/src/pages/AuthPage/AuthPage.jsx</code></p>
+    <p><span class="label">Problem:</span> Two separate <code>AuthPage</code> components implement the same login/register workflow with different markup and behavior.</p>
+    <p><span class="label">Impact:</span> Future fixes can be applied to one version only, producing inconsistent authentication UX and unnecessary maintenance.</p>
+    <p><span class="label">Fix:</span> Keep one canonical component and remove or rename the unused duplicate.</p>
+  </article>
+
+  <h2>Recommended Fix Order</h2>
+  <ol>
+    <li>Derive all write-operation identities from the JWT.</li>
+    <li>Add upload size/type restrictions.</li>
+    <li>Repair comment persistence and add the like uniqueness constraint.</li>
+    <li>Require a strong JWT secret and improve HTTP error semantics.</li>
+    <li>Add backend tests for authentication, ownership, comments, likes, and uploads.</li>
+    <li>Remove the duplicate authentication component.</li>
+  </ol>
+
+  <div class="footer">Generated from the code review of the complaint-system repository. Frontend checks observed: ESLint passed; Vite production build passed.</div>
+</body>
+</html>

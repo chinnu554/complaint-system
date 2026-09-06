@@ -1,10 +1,16 @@
 import User from "../models/user.js";
 import { hashPassword, comparePassword } from "../util/bcrypt.js";
 import { generateToken } from "../util/jwt.js";
+import {loginSchema, registerSchema} from "../validators/auth.validator.js";
 
 export const registerUser = async(req,res)=>{
     try{
-        const {username,email,password} = req.body;
+        const registerValidation = registerSchema.safeParse(req.body);
+        if(!registerValidation.success){
+            return res.status(400).json({message:registerValidation.error.issues[0].message,success:false});
+        }
+
+        const {username,email,password} = registerValidation.data;
         console.log(req.body);
         if(!username || !email || !password){
             return res.status(400).json({message:"Please fill all the fields",success:false});
@@ -26,7 +32,12 @@ export const registerUser = async(req,res)=>{
 
 export const LoginUser = async(req,res)=>{
     try{
-        const {email,password} = req.body;
+        const loginValidation = loginSchema.safeParse(req.body);
+        if(!loginValidation.success){
+            return res.status(400).json({message:loginValidation.error.issues[0].message,success:false});
+        }
+
+        const {email,password} = loginValidation.data;
         if(!email || !password){
             return res.status(400).json({message:"Please fill all the fields",success:false});
         }

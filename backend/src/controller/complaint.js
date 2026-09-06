@@ -2,11 +2,16 @@ import Complaint from "../models/complaint.js";
 import { Comment } from "../models/comment.js";
 import Like from "../models/like.js"
 import { uploadComplaintImage } from "../util/images.js";
+import { complaintSchema, idSchema, commentSchema } from "../validators/complaint.validator.js";
 
 const createComplaint = async (req, res) => {
     try {
+        const complaintValidation = complaintSchema.safeParse(req.body);
+        if (!complaintValidation.success) {
+            return res.status(400).json({ message: complaintValidation.error.issues[0].message, success: false });
+        }
+        const {title,description} = complaintValidation.data;
         const file = req.file;
-        const { title, description} = req.body;
         const {userId} = req.user;
         if (!title || !description || !userId) {
             return res.status(400).json({ message: "Title, description, and userId are required", success: false });
@@ -53,7 +58,15 @@ const getAllComplaints = async (req, res) => {
 
 const getComplaintsByUserId = async (req,res) =>{
     try{
-        const {id} = req.params;
+        const idValidation = idSchema.safeParse(req.params);
+        if(!idValidation.success){
+            return res.status(400).json({message:idValidation.error.issues[0].message, success: false});
+        }
+        const {id} = idValidation.data;
+        const userExists = await User.findById(id);
+        if (!userExists) {
+            return res.status(404).json({message:"User not found", success: false});
+        }
         const complaints = await Complaint.find({userId:id}).populate("userId").populate("comments");
         if(!complaints){
             return res.status(404).json({message:"No complaints found", success: false});
@@ -68,7 +81,11 @@ const getComplaintsByUserId = async (req,res) =>{
 
 const deleteComplaint = async(req,res)=>{
     try{
-        const {id} = req.params;
+        const idValidation = idSchema.safeParse(req.params);
+        if(!idValidation.success){
+            return res.status(400).json({message:idValidation.error.issues[0].message, success: false});
+        }
+        const {id} = idValidation.data;
         const complaint = await Complaint.findById(id);
         if(!complaint){
             return res.status(404).json({message:"Complaint not found", success: false});
@@ -88,7 +105,11 @@ const deleteComplaint = async(req,res)=>{
 
 const toggleLike = async(req,res) =>{
     try{
-        const {id : complaintId} = req.params;
+        const idValidation = idSchema.safeParse(req.params);
+        if(!idValidation.success){
+            return res.status(400).json({message:idValidation.error.issues[0].message, success: false});
+        }
+        const {id:complaintId} = idValidation.data;
         const userId = req.user.userId;
         const existingLike = await Like.findOne({userId:userId,complaintId:complaintId});
         if(existingLike){
@@ -114,8 +135,16 @@ const toggleLike = async(req,res) =>{
 
 const addComment = async(req,res)=>{
     try{
-        const {id} = req.params;
-        const {comment} = req.body;
+        const idValidation = idSchema.safeParse(req.params);
+        if(!idValidation.success){
+            return res.status(400).json({message:idValidation.error.issues[0].message, success: false});
+        }
+        const {id} = idValidation.data;
+        const commentValidation = commentSchema.safeParse(req.body);
+        if(!commentValidation.success){
+            return res.status(400).json({message:commentValidation.error.issues[0].message, success: false});
+        }
+        const {comment} = commentValidation.data;
         const {userId} = req.user;
         if(!comment){
             return res.status(400).json({message:"Comment is required", success: false});
