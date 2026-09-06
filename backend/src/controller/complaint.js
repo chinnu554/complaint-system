@@ -6,7 +6,8 @@ import { uploadComplaintImage } from "../util/images.js";
 const createComplaint = async (req, res) => {
     try {
         const file = req.file;
-        const { title, description, userId } = req.body;
+        const { title, description} = req.body;
+        const {userId} = req.user;
         if (!title || !description || !userId) {
             return res.status(400).json({ message: "Title, description, and userId are required", success: false });
         }
@@ -114,12 +115,17 @@ const toggleLike = async(req,res) =>{
 const addComment = async(req,res)=>{
     try{
         const {id} = req.params;
-        const {userId,comment} = req.body;
+        const {comment} = req.body;
+        const {userId} = req.user;
+        if(!comment){
+            return res.status(400).json({message:"Comment is required", success: false});
+        }
         const complaint = await Complaint.findById(id);
         if(!complaint){
             return res.status(404).json({message:"Complaint not found", success: false});
         }
         const newComment = await Comment.create({complaintId:id,userId,comment});
+        await Complaint.findByIdAndUpdate(id,{$push:{comments:newComment._id}});
         res.status(201).json({message:"Comment added successfully",comment:newComment, success: true});
     }
     catch(err){
